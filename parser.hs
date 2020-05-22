@@ -15,7 +15,6 @@ item = P (\inp -> case inp of
 -- Functor
 instance Functor Parser where
   -- fmap :: (a -> b) -> Parsera -> Parser b
-  -- パースが成功したらパース結果に関数 g を適用する
   fmap g p = P (\inp -> case parse p inp of
                           []        -> []
                           [(v,out)] -> [(g v, out)])
@@ -46,4 +45,33 @@ instance Alternative Parser where
   p <|> q = P (\inp -> case parse p inp of
                          []        -> parse q inp
                          [(v,out)] -> [(v,out)])
+
+-- parse one character satisfying predicate
+sat :: (Char -> Bool) -> Parser Char
+sat p = do x <- item
+           if p x then return x else empty
+
+digit :: Parser Char
+digit = sat isDigit
+
+lower :: Parser Char
+lower = sat isLower
+
+upper :: Parser Char
+upper = sat isUpper
+
+letter :: Parser Char
+letter = sat isAlpha
+
+alphanum :: Parser Char
+alphanum = sat isAlphaNum
+
+char :: Char -> Parser Char
+char x = sat  (== x)
+
+string :: String -> Parser String
+string []     = return []
+string (x:xs) = do char x
+                   string xs
+                   return (x:xs)
 
