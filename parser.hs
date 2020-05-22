@@ -12,4 +12,12 @@ item = P (\inp -> case inp of
                     []     -> []
                     (x:xs) -> [(x,xs)])
 
+-- Functor
+-- パースが成功したらパース結果に関数 g を適用する
+instance Functor Parser where
+  -- fmap :: (a -> b) -> Parsera -> Parser b
+  fmap g p = P (\inp -> case parser p inp of
+                          []        -> []
+                          [(v,out)] -> [(g v, out)]
+
 
