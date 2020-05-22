@@ -21,12 +21,20 @@ instance Functor Parser where
                           [(v,out)] -> [(g v, out)])
 
 -- Applicative
-insatnce Applicative Parser where
+instance Applicative Parser where
   -- pure :: a -> Parser a
   -- 引数の値 v をパーサーに変換
-  pure v = P (\inp -> [(v, inp)]
+  pure v = P (\inp -> [(v, inp)])
 
   -- (<*>) :: Parser (a -> b) -> Parser a -> Parser b
   pg <*> px = P (\inp -> case parse pg inp of
                            []        -> []
                            [(g,out)] -> parse (fmap g px) out)
+
+-- Monad
+instance Monad Parser where
+  -- (>>=) :: Parser a -> (a -> Parser b) -> Parser b
+  p >>= f = P (\inp -> case parse p inp of
+                         []        -> []
+                         [(v,out)] -> parse (f v) out)
+
