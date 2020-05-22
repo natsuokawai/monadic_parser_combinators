@@ -13,11 +13,20 @@ item = P (\inp -> case inp of
                     (x:xs) -> [(x,xs)])
 
 -- Functor
--- パースが成功したらパース結果に関数 g を適用する
 instance Functor Parser where
   -- fmap :: (a -> b) -> Parsera -> Parser b
-  fmap g p = P (\inp -> case parser p inp of
+  -- パースが成功したらパース結果に関数 g を適用する
+  fmap g p = P (\inp -> case parse p inp of
                           []        -> []
-                          [(v,out)] -> [(g v, out)]
+                          [(v,out)] -> [(g v, out)])
 
+-- Applicative
+insatnce Applicative Parser where
+  -- pure :: a -> Parser a
+  -- 引数の値 v をパーサーに変換
+  pure v = P (\inp -> [(v, inp)]
 
+  -- (<*>) :: Parser (a -> b) -> Parser a -> Parser b
+  pg <*> px = P (\inp -> case parse pg inp of
+                           []        -> []
+                           [(g,out)] -> parse (fmap g px) out)
